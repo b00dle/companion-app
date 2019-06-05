@@ -13,6 +13,7 @@ import com.example.companionapp.data.ApiService
 import com.example.companionapp.data.Sound
 import com.example.companionapp.databinding.ActivitySoundsBinding
 import com.example.companionapp.utilities.InjectorUtils
+import io.reactivex.disposables.CompositeDisposable
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,6 +29,8 @@ class SoundsActivity : AppCompatActivity() {
 
     private lateinit var soundsViewModel: SoundsViewModel
 
+    private var disposables = CompositeDisposable()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,6 +39,12 @@ class SoundsActivity : AppCompatActivity() {
         ApiClient.initialize()
         initializeUi()
         soundsViewModel.refreshSounds()
+    }
+
+    override fun onDestroy() {
+        disposables.clear()
+        disposables.dispose()
+        super.onDestroy()
     }
 
     private fun initializeUi() {
@@ -62,5 +71,7 @@ class SoundsActivity : AppCompatActivity() {
         soundsViewModel.soundRefreshState.observe(this, Observer {
             binding.swipeRefreshLayout.isRefreshing = it
         })
+
+        disposables.add(soundsAdapter.clickSubject.subscribe{soundsViewModel.handleClick(it)})
     }
 }

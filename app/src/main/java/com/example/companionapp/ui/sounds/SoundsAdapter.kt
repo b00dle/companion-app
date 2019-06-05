@@ -5,10 +5,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.companionapp.data.Sound
 import com.example.companionapp.databinding.SoundViewBinding
+import io.reactivex.subjects.PublishSubject
+import com.jakewharton.rxbinding3.view.clicks
 
 class SoundsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     protected val sounds = ArrayList<Sound>()
+
+    var clickSubject = PublishSubject.create<SoundViewHolder>()
 
     class SoundViewHolder(var binding: SoundViewBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -23,6 +27,10 @@ class SoundsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 holder.binding.myId.text = sound.id.toString()
                 holder.binding.name.text = sound.name
                 holder.binding.uuid.text = sound.uuid
+
+                holder.binding.photo.clicks()
+                    .map { holder as SoundViewHolder }
+                    .subscribe(clickSubject)
             }
         }
     }
